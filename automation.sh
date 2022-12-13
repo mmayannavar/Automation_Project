@@ -43,3 +43,27 @@ tar -zcvf /tmp/$myname--httpd-logs-$timestamp.tar *.log
 aws s3 \
 cp /tmp/$myname--httpd-logs-$timestamp.tar \
 s3://$s3_bucket/$myname--httpd-logs-$timestamp.tar
+
+
+#----------------------------------------------------
+logtype="httpd-logs"
+type="tar"
+size=`du -sh /tmp/$myname--httpd-logs-$timestamp.tar | awk '{ print $1 }'`
+
+
+
+if [ -f "/var/www/html/inventory.html" ]; then
+    echo "${logtype}&emsp;${timestamp}&emsp;${type}&emsp;${size}<br/>" >> /var/www/html/inventory.html
+else
+   echo "<b>Log Type&emsp;Date Created&emsp;Type&emsp;Size</b><br/>${logtype}&emsp;${timestamp}&emsp;${type}&emsp;${size}<br/>" > /var/www/html/inventory.html
+fi
+
+#setting up cron job -------------------
+
+if [ ! -f "/etc/cron.d/automation" ]; then
+   echo "* * * * * root /root/Automation_Project/automation.sh" >  /etc/cron.d/automation
+   crontab /etc/cron.d/automation
+fi
+
+
+echo "Success"
